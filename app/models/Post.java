@@ -1,29 +1,43 @@
 package models;
  
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
-import org.hibernate.annotations.Type;
-
-import play.db.jpa.*;
+import play.data.validation.MaxSize;
+import play.data.validation.Required;
+import play.db.jpa.Model;
  
 @Entity
 public class Post extends Model {
  
+    @Required
     public String title;
+    
+    @Required
     public Date postedAt;
     
     @Lob
-    @Type(type = "org.hibernate.type.TextType")
+    @Required
+    @MaxSize(10000)
     public String content;
     
+    @Required
     @ManyToOne
     public User author;
     
     @OneToMany(mappedBy="post", cascade=CascadeType.ALL)
     public List<Comment> comments;
-     
+    
     @ManyToMany(cascade=CascadeType.PERSIST)
     public Set<Tag> tags;
      
@@ -64,4 +78,9 @@ public class Post extends Model {
         	"t.name in (:tags) group by p.id, p.author, p.title, p.content,p.postedAt having count(t.id) = :size"
         ).bind("tags", tags).bind("size", tags.length).fetch();
     }
+    
+    public String toString() {
+        return title;
+    }
+    
 }
